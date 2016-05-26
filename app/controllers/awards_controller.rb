@@ -1,0 +1,56 @@
+class AwardsController < ApplicationController
+  before_action :set_award, only: [:show, :update, :destroy]
+
+  # GET /awards
+  def index
+    if params[:user_id].present?
+      awards = User.find(params[:user_id]).awards
+    elsif params[:story_id].present?
+      awards = Story.find(params[:story_id]).awards
+    else
+      awards = Award.all
+    end
+    render json: awards
+  end
+
+  # GET /awards/1
+  def show
+    render json: @award
+  end
+
+  # POST /awards
+  def create
+    @award = Award.new(award_params)
+
+    if @award.save
+      render json: @award, status: :created, location: @award
+    else
+      render json: @award.errors, status: :unprocessable_entity
+    end
+  end
+
+  # PATCH/PUT /awards/1
+  def update
+    if @award.update(award_params)
+      render json: @award
+    else
+      render json: @award.errors, status: :unprocessable_entity
+    end
+  end
+
+  # DELETE /awards/1
+  def destroy
+    @award.destroy
+  end
+
+  private
+    # Use callbacks to share common setup or constraints between actions.
+    def set_award
+      @award = Award.find(params[:id])
+    end
+
+    # Only allow a trusted parameter "white list" through.
+    def award_params
+      params.require(:award).permit(:name, :description, :points, :type)
+    end
+end
